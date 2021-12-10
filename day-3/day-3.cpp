@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <ios>
 
 int gamma_rate = 0; // we use the 12 lsb
 int epsilon_rate = 0;
@@ -30,7 +31,7 @@ void part_1()
             num |= ((bit) << sizeof(line) - 2 - i);
         }
 
-        line[12] = '\0'; // null-terminate before passing it to atoi
+        
         nums.push_back(std::pair<bool,int>(true,num));
     }
 
@@ -47,26 +48,32 @@ void part_2()
 {
     int valid_nums = 2;
     int last_valid_num = 0;
-    int idx = 11;
+    int idx = 0;
 
     int oxygen_generator_rating = 0;
     int co2_scrubber_rating = 0;
 
-    while (valid_nums > 1 && idx >= 0)
+
+    int desired_oxygen_rating = 0;
+    int desired_co2_rating = 0;
+    for (int i = 0; i < 12; ++i)
+    {
+        if (frequencies[0][i] <= frequencies[1][i])
+            desired_oxygen_rating |= (1 << (11 - i));        
+    }
+
+    desired_co2_rating = (~desired_oxygen_rating) & 0xFFF;
+
+    while (valid_nums > 1 && idx < 12)
     {
         valid_nums = 0;
-        bool most_common_bit;
         for (auto &num : nums)
         {
             if (num.first)
             {
                 int value = num.second;
-                if (frequencies[0][idx] > frequencies[1][idx])
-                    most_common_bit = 0;
-                else
-                    most_common_bit = 1;
 
-                if (((value >> idx) & 1) == most_common_bit)
+                if (((value >> (11 - idx)) & 1) == ((desired_oxygen_rating >> (11 - idx)) & 1))
                 {
                     ++valid_nums;
                     last_valid_num = value;
@@ -77,7 +84,7 @@ void part_2()
                 }
             }
         }
-        --idx;
+        ++idx;
     }
 
     oxygen_generator_rating = last_valid_num;
@@ -89,24 +96,19 @@ void part_2()
         num.first = true;
 
     // Look again, this time for the co2 rating
-    idx = 11;
+    idx = 0;
     valid_nums = 2;
 
-    while (valid_nums > 1 && idx >= 0)
+    while (valid_nums > 1 && idx < 12)
     {
         valid_nums = 0;
-        bool least_common_bit;
         for (auto &num : nums)
         {
             if (num.first)
             {
                 int value = num.second;
-                if (frequencies[0][idx] > frequencies[1][idx])
-                    least_common_bit = 1;
-                else
-                    least_common_bit = 0;
 
-                if (((value >> idx) & 1) == least_common_bit)
+                if (((value >> (11 - idx)) & 1) == ((desired_co2_rating >> (11 - idx)) & 1))
                 {
                     ++valid_nums;
                     last_valid_num = value;
@@ -117,16 +119,10 @@ void part_2()
                 }
             }
         }
-        --idx;
+        ++idx;
     }
 
     co2_scrubber_rating = last_valid_num;
-
-
-    std::cout << "Valid nums left: " << valid_nums << std::endl;
-    std::cout << "IDX: " << idx << std::endl;
-    std::cout << "Oxygen generator rating: " << oxygen_generator_rating << std::endl;
-    std::cout << "CO2 scrubber rating: " << co2_scrubber_rating << std::endl;
     std::cout << "Part 2: " << co2_scrubber_rating * oxygen_generator_rating << std::endl;
 
 }
