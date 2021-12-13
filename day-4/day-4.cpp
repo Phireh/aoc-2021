@@ -56,7 +56,82 @@ void part_1()
         }
     }
 
+    for (uint i = 0; i < boards.size(); ++i)
+        points.push_back((bool*)calloc(1, sizeof(bool) * 5 * 5));
 
+    int winner_score = 0;
+    
+    while (!winner_score && !nums.empty())
+    {
+        int n = nums.at(0);
+        nums.pop_front();
+
+        auto itb = boards.begin();
+        auto itp = points.begin();
+
+        // Record points in all boards with that number
+        for (; itb < boards.end() && itp < points.end(); ++itb, ++itp)
+        {
+            int *board = *itb;
+            bool *point_table = *itp;
+            for (int i = 0; i < 25; ++i)
+            {
+                if (board[i] == n)
+                {
+                    point_table[i] = true;
+                }
+            }
+        }
+
+        int *winner = nullptr;
+        
+        // Check for winners
+        for (itb = boards.begin(), itp = points.begin();
+             itb < boards.end() && itp < points.end();
+             ++itb, ++itp)
+        {
+            int *board = *itb;
+            bool *point_table = *itp;
+
+
+            // Check rows
+            if (point_table[0] && point_table[1] && point_table[2] && point_table[3] && point_table[4])
+                winner = board;
+            else if (point_table[5] && point_table[6] && point_table[7] && point_table[8] && point_table[9])
+                winner = board;
+            else if (point_table[10] && point_table[11] && point_table[12] && point_table[13] && point_table[14])
+                winner = board;
+            else if (point_table[15] && point_table[16] && point_table[17] && point_table[18] && point_table[19])
+                winner = board;
+            else if (point_table[20] && point_table[21] && point_table[22] && point_table[23] && point_table[24])
+                winner = board;
+
+            // Check columns
+            else if (point_table[0] && point_table[5] && point_table[10] && point_table[15] && point_table[20])
+                winner = board;
+            else if (point_table[1] && point_table[6] && point_table[11] && point_table[16] && point_table[21])
+                winner = board;
+            else if (point_table[2] && point_table[7] && point_table[12] && point_table[17] && point_table[22])
+                winner = board;
+            else if (point_table[3] && point_table[8] && point_table[13] && point_table[18] && point_table[23])
+                winner = board;
+            else if (point_table[4] && point_table[9] && point_table[14] && point_table[19] && point_table[24])
+                winner = board;
+
+            if (winner)
+            {
+                // Count all unmarked numbers
+                for (int i = 0; i < 25; ++i)
+                {
+                    if (!point_table[i]) winner_score += winner[i];
+                }
+                // Multiply score by last called number
+                winner_score *= n;
+                break;
+            }
+        }
+    }
+    printf("Part 1: %d\n", winner_score);
 }
 
 int main(int argc, char *argv[])
