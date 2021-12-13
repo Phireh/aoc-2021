@@ -42,16 +42,22 @@ void part_1()
 
             if (x1 < x2)
                 xoffset = 1;
-            else if (x2 < x1)
+            if (x2 < x1)
                 xoffset = -1;
 
             if (y1 < y2)
                 yoffset = 1;
-            else if (y2 < y1)
+            if (y2 < y1)
                 yoffset = -1;
 
-            for (int x = x1, y = y1; x != x2 || y != y2; x += xoffset, y += yoffset)
+            int x = x1;
+            int y = y1;
+            while (x != x2 || y != y2)
+            {
                 ++nums[y * 1000 + x];
+                x += xoffset, y += yoffset;
+            }
+            ++nums[y * 1000 + x]; // last iteration
         }
     }
 
