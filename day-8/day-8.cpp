@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <string.h>
+#include <vector>
 
 /* For part 1 we are only asked about the "easy digits". 
    Those are the nonambiguous ones; 
@@ -41,6 +42,51 @@ int segments(char *str)
     return n;
 }
 
+int decipher_line(std::string line)
+{
+    /* Possible wirings for each desired output segment. As we process the line,
+       we delete possible candidates.
+
+       For example, if we read 'fg', we know that the number is '1' and that 'fg'
+       are the only possible wirings to 'a' and 'b'. We can delete every other possibility
+       from ab, bv and delete 'f' and 'g' from every other vector.
+     */
+    std::vector<char> av = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+    std::vector<char> bv = av, cv = av, dv = av, ev = av, fv = av, gv = av;
+
+    // We're going to need to process numbers multiple times, so tokenize them in advance
+    std::vector<std::string> number_encodings;
+    
+    char *pch = strtok(line.data(), "| ");
+    do
+    {
+        number_encodings.push_back(pch);
+    } while ((pch = strtok(nullptr, "| ")) != nullptr);
+
+    // Decipher wiring
+    while (av.size() > 1 || bv.size() > 1 || cv.size() > 1 || dv.size() > 1 ||
+           ev.size() > 1 || fv.size() > 1 || gv.size() > 1)
+    {
+        for (auto n : number_encodings)
+        {
+            switch(segments(n.c_str()))
+            {
+            case 2:
+                // we read a '1'. It should we written with 'a' and 'b'
+                av = {};
+                bv = {};
+                for (char c : n)
+                {
+                    av.push_back(c);
+                    bv.push_back(c);
+                    std::erase();
+                }
+                break;
+            }
+        }
+    }
+}
+
 void part_1()
 {
     std::string line;
@@ -75,7 +121,23 @@ void part_1()
     printf("Part 1: %d\n", ndigits);
 }
 
+void part_2()
+{
+    std::string line;
+    std::ifstream input_file("input");
+
+    int output_value = 0;
+
+    while (std::getline(input_file, line))
+    {
+        output_value += decipher_line(line);
+    }
+
+    printf("Part 2: %d\n", output_value);
+}
+
 int main()
 {
     part_1();
+    part_2();
 }
